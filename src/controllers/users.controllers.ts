@@ -1,10 +1,18 @@
-import { Request, Response } from 'express'
-import { RegisterReBody } from '~/models/requests/user.request'
+import { Request, Response, NextFunction } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
+import { RegisterReBody } from '~/models/requests/User.request'
 import usersServices from '~/services/users.services'
 
 // ham xu ly du lieu cuoi cung
-export const registerController = async (req: Request<ParamsDictionary, any, RegisterReBody>, res: Response) => {
+export const registerController = async (
+  req: Request<ParamsDictionary, any, RegisterReBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  //giờ thì ta đã thấy body là RegisterReqBody
+  //việc này sẽ giúp code nhắc ta là trong body có gì
+  //và ta biết đã biết chắc body là RegisterReqBody
+  //nên ta cũng k cần lấy lẽ từng cái email,pasword làm gì
   const { email } = req.body
 
   try {

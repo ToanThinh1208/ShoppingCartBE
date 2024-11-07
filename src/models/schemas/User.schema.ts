@@ -5,7 +5,7 @@ import { USER_ROLE, UserVerifyStatus } from "~/constants/enums";
 //interface dùng để định nghĩa 1 user cần những gì khi tạo ra
 interface UserType {
   _id?: ObjectId; //optional là ?
-  name?: string;
+  name: string;
   email: string;
   date_of_birth?: Date;
   password: string;

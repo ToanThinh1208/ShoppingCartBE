@@ -5,12 +5,15 @@ import { hashPassword } from '~/utils/cryto'
 import { signToken } from '~/utils/jwt'
 import { ObjectId } from 'mongodb'
 import RefreshToken from '~/models/schemas/RefreshToken.schema'
+import { TokenType } from '~/constants/enums'
 
 // class dung de kiem tra mail co ton tai hay ko va chuc nang dki
 class UserServices {
   private signAccessToken(user_id: string) {
     return signToken({
-      payload: user_id,
+      //bug "invalid expiresIn option for string payload
+      //là do chưa định nghĩa dạng token nên mới bị hết hạn
+      payload: { user_id, token_type: TokenType.AccessToken },
       privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string,
       options: { expiresIn: process.env.ACCESS_TOKEN_EXPIRE_IN }
     })
@@ -18,7 +21,7 @@ class UserServices {
 
   private signRefreshToken(user_id: string) {
     return signToken({
-      payload: user_id,
+      payload: { user_id, token_type: TokenType.RefreshToken },
       privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string,
       options: { expiresIn: process.env.REFRESH_TOKEN_EXPIRE_IN }
     })

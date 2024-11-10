@@ -2,6 +2,7 @@ import express from 'express'
 import { register } from 'module'
 import { registerController } from '~/controllers/users.controllers'
 import { registerValiator } from '~/middlewares/users.middlewares'
+import { wrapAsync } from '~/utils/handlers'
 
 
 //dựng userRouter
@@ -19,6 +20,6 @@ const userRouter = express.Router()
 
     } 
 */
-userRouter.post('/register', registerValiator, registerController)
+userRouter.post('/register', registerValiator, wrapAsync(registerController))
 
 export default userRouter

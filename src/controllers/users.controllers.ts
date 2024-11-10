@@ -1,5 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { ParamsDictionary } from 'express-serve-static-core'
+import HTTP_STATUS from '~/constants/httpStatus'
+import { USERS_MESSAGES } from '~/constants/message'
+import { ErrorWithStatus } from '~/models/Errors'
 import { RegisterReBody } from '~/models/requests/User.request'
 import usersServices from '~/services/users.services'
 
@@ -15,26 +18,18 @@ export const registerController = async (
   //nên ta cũng k cần lấy lẽ từng cái email,pasword làm gì
   const { email } = req.body
 
-  try {
-    const isDup = await usersServices.checkEmailExist(email)
-    if (isDup) {
-      const customError = new Error('Email has been used')
-      Object.defineProperty(customError, 'message', {
-        enumerable: true
-      })
-      throw customError
-    }
-
-    const result = await usersServices.register(req.body)
-
-    res.status(201).json({
-      message: 'Register success',
-      data: result
-    })
-  } catch (error) {
-    res.status(422).json({
-      message: 'Register failed',
-      error
+  const isDup = await usersServices.checkEmailExist(email)
+  if (isDup) {
+    throw new ErrorWithStatus({
+      status: HTTP_STATUS.UNAUTHORIZED, //401
+      message: USERS_MESSAGES.EMAIL_ALREADY_EXISTS
     })
   }
+
+  const result = await usersServices.register(req.body)
+
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.REGISTER_SUCCESS,
+    result
+  })
 }

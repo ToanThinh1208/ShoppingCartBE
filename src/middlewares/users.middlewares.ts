@@ -166,3 +166,33 @@ export const accessTokenValidator = validate(
     ['headers']
   )
 )
+
+export const refreshTokenValidator = validate(
+  checkSchema(
+    {
+      refresh_token: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.REFRESH_TOKEN_IS_REQUIRED
+        },
+        custom: {
+          options: async (value, { req }) => {
+            try {
+              const decode_refresh_token = await verifyToken({
+                token: value,
+                privateKey: process.env.JWT_SECRECT_REFRESH_TOKEN as string
+              })
+              ;(req as Request).decode_refresh_token = decode_refresh_token
+            } catch (error) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.UNAUTHORIZED, //401
+                message: capitalize((error as VerifyErrors).message)
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['body']
+  )
+)

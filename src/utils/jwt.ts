@@ -1,5 +1,7 @@
-import jwt from 'jsonwebtoken'
+import jwt, { decode } from 'jsonwebtoken'
 import dotenv from 'dotenv'
+import { TokenPayLoad } from '~/models/requests/User.request'
+
 dotenv.config
 //hàm tạo chữ ký
 export const signToken = ({
@@ -19,3 +21,12 @@ export const signToken = ({
   })
 }
 // dùng promise để có thể kí nhiều thg cùng lúc
+
+export const verifyToken = ({ token, privateKey }: { token: string; privateKey: string }) => {
+  return new Promise<TokenPayLoad>((resolve, reject) => {
+    jwt.verify(token, privateKey, (error, decode) => {
+      if (error) throw reject(error)
+      else return resolve(decode as TokenPayLoad)
+    })
+  })
+}

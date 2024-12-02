@@ -7,6 +7,9 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { capitalize } from 'lodash'
 import { VerifyErrors } from 'jsonwebtoken'
 import { verifyToken } from '~/utils/jwt'
+import dotenv from 'dotenv'
+dotenv.config()
+
 const passwordSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USERS_MESSAGES.PASSWORD_IS_REQUIRED
@@ -132,7 +135,7 @@ export const loginValidator = validate(
 export const accessTokenValidator = validate(
   checkSchema(
     {
-      Authoriztion: {
+      Authorization: {
         notEmpty: {
           errorMessage: USERS_MESSAGES.ACCESS_TOKEN_IS_REQUIRED
         },
@@ -149,7 +152,7 @@ export const accessTokenValidator = validate(
             try {
               const decode_authorization = await verifyToken({
                 token: access_token,
-                privateKey: process.env.JWT_SECRECT_ACCESS_TOKEN as string
+                privateKey: process.env.JWT_SECRET_ACCESS_TOKEN as string
               })
               ;(req as Request).decode_authorization = decode_authorization
             } catch (error) {
@@ -179,7 +182,7 @@ export const refreshTokenValidator = validate(
             try {
               const decode_refresh_token = await verifyToken({
                 token: value,
-                privateKey: process.env.JWT_SECRECT_REFRESH_TOKEN as string
+                privateKey: process.env.JWT_SECRET_REFRESH_TOKEN as string
               })
               ;(req as Request).decode_refresh_token = decode_refresh_token
             } catch (error) {

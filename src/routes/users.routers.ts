@@ -1,6 +1,6 @@
 import express from 'express'
 import { register } from 'module'
-import { loginController, registerController } from '~/controllers/users.controllers'
+import { loginController, logoutController, registerController } from '~/controllers/users.controllers'
 import {
   accessTokenValidator,
   loginValidator,
@@ -43,7 +43,7 @@ desc: logout
 path: /logout
 method: post
 headers: {
-    Authoriztion: 'Bearer <access_token>'
+    Authorization: 'Bearer <access_token>'
 }
 body : {
     refresh_token: string

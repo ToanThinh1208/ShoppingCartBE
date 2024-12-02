@@ -3,7 +3,7 @@ import { ParamsDictionary } from 'express-serve-static-core'
 import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/message'
 import { ErrorWithStatus } from '~/models/Errors'
-import { LoginReBody, RegisterReBody } from '~/models/requests/User.request'
+import { LoginReBody, LogoutReBody, RegisterReBody, TokenPayLoad } from '~/models/requests/User.request'
 import databaseServices from '~/services/database.services'
 import usersServices from '~/services/users.services'
 
@@ -48,5 +48,32 @@ export const loginController = async (
   res.status(HTTP_STATUS.OK).json({
     message: USERS_MESSAGES.LOGIN_SUCCESS,
     result //có ac và rf
+  })
+}
+
+export const logoutController = async (
+  req: Request<ParamsDictionary, any, LogoutReBody>,
+  res: Response,
+  next: NextFunction
+) => {
+  const { refresh_token } = req.body
+  const { user_id: user_id_at } = req.decode_authorization as TokenPayLoad
+  const { user_id: user_id_rf } = req.decode_refresh_token as TokenPayLoad
+  //kiểm tra id trong 2 thg access và rf có giống nhau ko
+  if (user_id_at != user_id_rf) {
+    throw new ErrorWithStatus({
+      status: HTTP_STATUS.UNAUTHORIZED,
+      message: USERS_MESSAGES.REFRESH_TOKEN_IS_INVALID
+    })
+  }
+  //giống rồi thì lên database kt xem có rf này ko
+  await usersServices.checkRefreshToken({
+    user_id:  user_id_at,
+    refresh_token
+  })
+  //khi nào có mã đó trong db thì mình logout
+  await usersServices.logout(refresh_token)
+  res.status(HTTP_STATUS.OK).json({
+    message: USERS_MESSAGES.LOGOUT_SUCCESS
   })
 }

@@ -51,4 +51,10 @@ body : {
 */
 
 userRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapAsync(logoutController))
+
+/*
+desc: verify-email: khi người dùng email  và bấm vào link verify email
+họ sẽ gửi email_verify_token lên cho mình thông qua query
+path: users/verify-email/?email_verify_token=string
+ */
 export default userRouter

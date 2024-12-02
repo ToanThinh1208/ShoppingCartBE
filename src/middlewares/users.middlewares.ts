@@ -71,6 +71,29 @@ const confirmPasswordSchema: ParamSchema = {
     }
   }
 }
+
+const forgotPasswordTokenSchema: ParamSchema = {
+  notEmpty: {
+    errorMessage: USERS_MESSAGES.FORGOT_PASSWORD_TOKEN_IS_REQUIRED
+  },
+  custom: {
+    options: async (value, { req }) => {
+      try {
+        const decode_forgot_password_token = await verifyToken({
+          token: value,
+          privateKey: process.env.JWT_SECRET_FORGOT_PASSWORD_TOKEN  as string
+        })
+        ;(req as Request).decode_forgot_password_token = decode_forgot_password_token
+      } catch (error) {
+        throw new ErrorWithStatus({
+          status: HTTP_STATUS.UNAUTHORIZED, //401
+          message: capitalize((error as VerifyErrors).message)
+        })
+      }
+      return true
+    }
+  }
+}
 //param schema
 //ham dung de kiem tra xac thuc du lieu
 export const registerValidator = validate(
@@ -195,6 +218,73 @@ export const refreshTokenValidator = validate(
           }
         }
       }
+    },
+    ['body']
+  )
+)
+
+export const verifyEmailTokenValidator = validate(
+  checkSchema(
+    {
+      email_verify_token: {
+        trim: true,
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.EMAIL_VERIFY_TOKEN_IS_REQUIRED
+        },
+        custom: {
+          options: async (value, { req }) => {
+            try {
+              const decode_email_verify_token_token = await verifyToken({
+                token: value,
+                privateKey: process.env.JWT_SECRET_EMAIL_VERIFY_TOKEN as string
+              })
+              ;(req as Request).decode_email_verify_token = decode_email_verify_token_token
+            } catch (error) {
+              throw new ErrorWithStatus({
+                status: HTTP_STATUS.UNAUTHORIZED, //401
+                message: capitalize((error as VerifyErrors).message)
+              })
+            }
+            return true
+          }
+        }
+      }
+    },
+    ['query']
+  )
+)
+
+export const forgotPasswordValidator = validate(
+  checkSchema(
+    {
+      email: {
+        notEmpty: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_REQUIRED
+        },
+        isEmail: {
+          errorMessage: USERS_MESSAGES.EMAIL_IS_INVALID
+        },
+        trim: true
+      }
+    },
+    ['body']
+  )
+)
+
+export const forgotPasswordTokenValidator = validate(
+  checkSchema(
+    {
+      forgot_password_token: forgotPasswordTokenSchema
+    },
+    ['body']
+  )
+)
+
+export const resetPasswordValidator = validate(
+  checkSchema(
+    {
+      passord: passwordSchema,
+      confirm_password: confirmPasswordSchema
     },
     ['body']
   )
